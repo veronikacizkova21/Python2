@@ -1,0 +1,128 @@
+"""
+projekt_2.py: druhý projekt do Engeto Online Python Akademie
+
+author: Veronika Čížková
+
+email: veronika.cizkova21@gmail.com
+discord: veronikacizkova
+
+hra Bulls & Cows
+"""
+
+import random
+from datetime import datetime
+
+def print_introduction():
+      separator = "-"*50 
+      print("Hi there!", 
+      separator,
+      "I've generated a random 4 digit number for you.",
+      "Let's play a bulls and cows game.",
+      separator,
+      sep = "\n")
+
+def generate_secret_number(length: int):
+      #vytvoření náhodného čísla dané délky (číslo nezačíná 0 a neopakují se číslice)
+      if length < 1 or length > 10:
+            raise ValueError("Length must be between 1 and 10")
+      secret_number = str(random.randint(1,9))
+      while len(secret_number) < length:
+            number = str(random.randint(0,9))
+            if number not in secret_number:
+                  secret_number += number                   
+      return secret_number
+
+def get_count_bulls(number_1: str, number_2: str):
+      #určí počet "bulls" (shoda čísla i shoda umístění)
+      bulls =  0
+      for i in range(len(number_1)):
+            if number_1[i] == number_2[i]:
+                  bulls += 1
+      return bulls
+
+def get_count_cows(number_1: str, number_2: str):
+      #určí počet "cows" (shoda čísla, chybné umístění)
+      #od počtu číslic, které náleží průniku množin odečteme počet "bulls"
+      set_1 = set(number_1)
+      set_2 = set(number_2)
+      cows = len(set_1 & set_2) - get_count_bulls(number_1, number_2)
+      return cows
+
+def print_count_bulls_and_cows(bulls: int ,cows: int):
+      #tisk počtu bulls a cows (rozlišení jednotného/množného čísla)
+      if bulls == 1:
+            count_bulls = str(bulls) + " bull"
+      else:
+            count_bulls = str(bulls) + " bulls"
+
+      if cows == 1:
+            count_cows = str(cows) + " cow"
+      else:
+            count_cows = str(cows) + " cows"
+      return print(count_bulls, count_cows)
+      
+def rate_the_game(number_of_tips: int):
+      #hodnocení hry dle počtu tipů
+      if number_of_tips < 5:
+            rating = "That's amazing :-) ."
+      elif number_of_tips < 15:
+            rating = "That's average."
+      else:
+            rating = "It'll be better next time. Try it!"
+      return print(rating)
+
+def verify_tip(tip: int, length):
+      #ověření tipu a to na:
+      #číslo; nezačíná 0; není příliš krátké/dlouhé; neopakují se číslice
+      if not tip.isdigit():
+            print("Guess the number!")
+            return False
+      elif str(tip).startswith('0'):
+            print("The number must not start with a zero!")
+            return False
+      elif int(len(str(tip))) < length:
+            print("The number is too short!")
+            return False
+      elif int(len(str(tip))) > length:
+            print("The number is too long!")
+            return False
+      elif len(set(tip)) != length:
+            print("The numbers must be different.")
+            return False
+      return True
+
+def playtime(start, end):
+      #měření délky hry
+      end = datetime.now()
+      game_time = end - start
+      print("Your game lasted", round(game_time.total_seconds(),2), "seconds.")
+
+
+def play_bulls_and_cows():
+      #"jádro hry" - spojení funkcí do funkčního celku
+      start_time = datetime.now()
+      secret = generate_secret_number(4)
+      
+      print_introduction()
+      count_of_tips = 0
+      
+      while True:
+            your_tip = input("Enter a number:")
+
+            if not verify_tip(your_tip, len(secret)):
+                  continue
+            
+            count_of_tips += 1
+
+            if get_count_bulls(your_tip, secret) != len(secret):
+                print_count_bulls_and_cows(get_count_bulls(your_tip, secret),
+                                            get_count_cows(your_tip, secret))
+
+            if get_count_bulls(your_tip, secret) == len(secret):
+                print(f"Congratulations! You've guessed the secret number {secret} in {count_of_tips} attempts.")
+                rate_the_game(count_of_tips)
+                end_time = datetime.now()
+                playtime(start_time, end_time)
+                break
+
+play_bulls_and_cows()
