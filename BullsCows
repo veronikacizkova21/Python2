@@ -71,19 +71,20 @@ def rate_the_game(number_of_tips: int):
             rating = "It'll be better next time. Try it!"
       return print(rating)
 
-def verify_tip(tip: int, length):
+def verify_tip(tip: str, length):
       #ověření tipu a to na:
       #číslo; nezačíná 0; není příliš krátké/dlouhé; neopakují se číslice
+      tip = str(tip)
       if not tip.isdigit():
             print("Guess the number!")
             return False
-      elif str(tip).startswith('0'):
+      elif tip.startswith('0'):
             print("The number must not start with a zero!")
             return False
-      elif int(len(str(tip))) < length:
+      elif int(len(tip)) < length:
             print("The number is too short!")
             return False
-      elif int(len(str(tip))) > length:
+      elif int(len(tip)) > length:
             print("The number is too long!")
             return False
       elif len(set(tip)) != length:
@@ -93,7 +94,6 @@ def verify_tip(tip: int, length):
 
 def playtime(start, end):
       #měření délky hry
-      end = datetime.now()
       game_time = end - start
       print("Your game lasted", round(game_time.total_seconds(),2), "seconds.")
 
@@ -107,18 +107,19 @@ def play_bulls_and_cows():
       count_of_tips = 0
       
       while True:
-            your_tip = input("Enter a number:")
+            your_tip = input("Enter a number: ")
+            count_of_tips += 1
 
             if not verify_tip(your_tip, len(secret)):
                   continue
-            
-            count_of_tips += 1
 
-            if get_count_bulls(your_tip, secret) != len(secret):
-                print_count_bulls_and_cows(get_count_bulls(your_tip, secret),
-                                            get_count_cows(your_tip, secret))
+            bulls = get_count_bulls(your_tip, secret)
+            cows = get_count_cows(your_tip, secret)
 
-            if get_count_bulls(your_tip, secret) == len(secret):
+            if bulls != len(secret):
+                print_count_bulls_and_cows(bulls, cows)
+
+            else:
                 print(f"Congratulations! You've guessed the secret number {secret} in {count_of_tips} attempts.")
                 rate_the_game(count_of_tips)
                 end_time = datetime.now()
